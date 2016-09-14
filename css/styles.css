@@ -19,17 +19,6 @@ a:hover {
 	color: #2c3e50;
 }
 
-/*Colors*/
-.red {
-	background: #e74c3c;
-}
-.darkblue {
-	background: #2c3e50;
-}
-.blue {
-	background: #2990b9;
-}
-
 /*NAVBAR*/
 .navbar {
 	height: 40px;
@@ -94,6 +83,11 @@ a:hover {
 }
 .axis text {
   font-size: .625em;
+}
+
+/*LAYERS*/
+.layer-label {
+	font-size: .8em;
 }
 
 /*TIP*/

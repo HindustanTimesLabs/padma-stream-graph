@@ -184,6 +184,52 @@ function chart(csvpath, color) {
         .attr("d", function(d) { return area(d.values); })
         .style("fill", function(d, i) { return z(i); });
 
+
+    // place the text labels
+    /*function getMyCentroid(element) {
+      var bbox = element.getBBox();
+      return [bbox.x + bbox.width / 2, bbox.y + bbox.height / 2];
+    }
+
+    d3.selectAll(".layer")[0].forEach(function(d) {
+      var centroid = getMyCentroid(d);
+      console.log(d);
+      svg.append("text")
+          .attr("x",  centroid[0])
+          .attr("y", centroid[1])
+          .text(d3.select(d).data()[0].key)
+
+    });*/
+
+    svg.selectAll(".layer-label")
+        .data(layers)
+      .enter().append("text")
+        .attr("class","layer-label")
+        .attr("x", function(d){
+          var max = Math.max.apply(0, d.values.map(function(elt) { return elt.value; }));
+          var maxObj = _.where(d.values,{value:max})[0];
+          var len = maxObj.key.length;
+          console.log(len);
+
+          return x(maxObj.date)-(len*2);
+        })
+        .attr("y", function(d){
+          var max = Math.max.apply(0, d.values.map(function(elt) { return elt.value; }));
+          var maxObj = _.where(d.values,{value:max})[0];
+          var testA = y(maxObj.y0);
+          var testB = y(maxObj.y0 + maxObj.y);
+          var testC = (testB+testA)/2;
+          var testD = y(maxObj.y);
+          var testE = maxObj.y;
+          var testF = maxObj.y0;
+          var testG = y((testE+testF))+margin.top*1.7;
+
+          return testC;
+        })
+        .text(function(d){
+          return d.key;
+        });
+
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
@@ -263,21 +309,11 @@ function chart(csvpath, color) {
      .attr('transform', 'rotate(180)')
      .style('fill', '#fcfcfc')
 
-   /* Optionally add a guideline */
-   var guideline = svg.append('line')
-     .attr('stroke', '#333')
-     .attr('stroke-width', 0)
-     .attr('class', 'guide')
-     .attr('x1', 1)
-     .attr('y1', 1)
-     .attr('x2', 1)
-     .attr('y2', height)
-
    /* Create a shared transition for anything we're animating */
    var t = svg.transition()
      .delay(100)
      .duration(1000)
-     .ease('linear')
+     .ease('exp')
      .each('end', function() {
        d3.select('line.guide')
          .transition()
@@ -290,9 +326,5 @@ function chart(csvpath, color) {
    t.select('line.guide')
      .attr('transform', 'translate(' + width + ', 0)')
 
-   d3.select("#show_guideline").on("change", function(e) {
-     guideline.attr('stroke-width', this.checked ? 1 : 0);
-     curtain.attr("opacity", this.checked ? 0.75 : 1);
-   })
   });
 }
