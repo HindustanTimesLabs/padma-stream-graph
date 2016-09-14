@@ -98,7 +98,7 @@ function chart(column, filterBy, groupBy) {
 
   var stack = d3.layout.stack()
       .offset("silhouette")
-      .order("inside-out")
+      .order("reverse")
       .values(function(d) { return d.values; })
       .x(function(d) { return d.date; })
       .y(function(d) { return d.value; });
@@ -237,10 +237,8 @@ function chart(column, filterBy, groupBy) {
     x.domain(d3.extent(data, function(d) { return d.date; }));
     y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
 
-    var layers = svg.selectAll(".layer")
+    svg.selectAll(".layer")
         .data(layers)
-
-    layers
       .enter().append("path")
         .attr("class", "layer")
         .attr("d", function(d) { return area(d.values); })
@@ -282,7 +280,7 @@ function chart(column, filterBy, groupBy) {
           .duration(100)
           .attr("opacity", '1');
         tooltip.style("visibility", "hidden");
-    })
+    });
 
     var vertical = d3.select(".chart."+groupBy+'.'+filterBy)
           .append("div")
