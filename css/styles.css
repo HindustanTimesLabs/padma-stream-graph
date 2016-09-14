@@ -10,7 +10,7 @@ hr {
 	width: 60%;
 	border-top-color: #ccc;
 	margin-top: 30px;
-	margin-bottom: 10px;
+	margin-bottom: 30px;
 }
 a {
 	color: #2990b9;
@@ -51,17 +51,13 @@ a:hover {
 }
 
 /*Headline*/
-.superhead {
-	text-transform: uppercase;
-	color: #e74c3c;
-	font-size: 1.3em;
-	font-weight: 900;
+.headline,.byline,.dateline {
+	text-align: center;
 }
 .headline {
-	color: #3a3a3a;
-	font-family: Lato;
+	font-family: "Lato", sans-serif;
 	font-weight: 900;
-	font-size: 2em;
+	font-size: 3em;
 	line-height: 1.4em;
 	margin-bottom: 20px;
 }
@@ -70,8 +66,41 @@ a:hover {
 }
 .dateline {
 	font-size: 1.1em;
-	margin-bottom: 30px;
 	font-weight: 300;
+	margin-bottom: 30px;
+}
+
+/*Copy*/
+.copy p {
+	font-size: 1.1em;
+  margin-bottom: 20px;
+  font-weight: 300;
+  line-height: 1.6em;
+  font-family: "Merriweather", sans-serif;
+}
+.copy p a {
+	font-weight: 900;
+}
+
+/*SECTION*/
+.section {
+	text-align: center;
+}
+.section .image {
+	font-size: 5em;
+	line-height: 1em;
+}
+.section .title {
+	font-weight: 300;
+	font-size: 2.2em;
+	margin-bottom: 10px;
+}
+
+/*CHART GENERAL*/
+.chart-title {
+	text-align: center;
+	font-size: 1.8em;
+	font-weight: 900;
 }
 
 /*AXES*/
@@ -86,8 +115,12 @@ a:hover {
 }
 
 /*LAYERS*/
+.layer {
+
+}
 .layer-label {
-	font-size: .8em;
+	font-size: 1.8em;
+	fill: #fff;
 }
 
 /*TIP*/
@@ -96,6 +129,7 @@ a:hover {
   padding: 10px;
   border-radius: 5px;
   font-size: 1em;
+	width: 180px;
 }
 .tip .year {
   font-weight: 900;
@@ -103,9 +137,75 @@ a:hover {
   margin-bottom: 2px;
 }
 .tip .swatch {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   float: left;
   margin-top: 6px;
   margin-right: 4px;
+}
+
+/*LEGEND*/
+.legend {
+	position: absolute;
+	top: 15px;
+	left: 30px;
+	background-color: hsla(0,0%,100%,.9);
+	padding: 5px 10px 5px 10px;
+	border-radius: 5px;
+}
+.legend .title {
+	margin-bottom: 2px;
+	font-weight: 900;
+}
+.legend .item {
+	font-size: .75em;
+}
+.legend .swatch {
+	width: 10px;
+	height: 10px;
+	margin-top: 3px;
+	float: left;
+	margin-right: 5px;
+}
+
+/*RELATED*/
+.related-wrapper a {
+  cursor: pointer;
+}
+.related-title {
+  margin-top: 20px;
+  border-top: 2px solid #3a403d;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 1.8em;
+  font-weight: 900;
+}
+.related-story-image-wrapper {
+  margin-bottom: 5px;
+}
+.related-story-headline {
+  font-size: 1.1em;
+}
+.related-story-dateline {
+  font-size: .9em;
+  color: #777;
+}
+
+/*FOOTER*/
+footer {
+  margin-bottom: -30px;
+}
+.footer-basic-centered {
+  background-color: #222;
+  color: #fff;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
+  width: 100%;
+  text-align: center;
+  font: normal 18px 'Lato',sans-serif;
+  padding: 40px;
+  margin-top: 40px;
+}
+footer a {
+  color: #fff!important;
 }

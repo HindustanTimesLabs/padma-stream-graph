@@ -1,3 +1,37 @@
+/* functions to check if a chart is scrolled into view */
+function isScrolledIntoView(elem)
+{
+    var docViewTop = $(window).scrollTop();
+    var docViewBottom = docViewTop + $(window).height();
+
+    var elemTop = $(elem).offset().top;
+    var elemBottom = elemTop + $(elem).height();
+
+    return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
+}
+function Utils() {
+
+}
+
+Utils.prototype = {
+    constructor: Utils,
+    isElementInView: function (element, fullyInView) {
+        var pageTop = $(window).scrollTop();
+        var pageBottom = pageTop + $(window).height();
+        var elementTop = $(element).offset().top;
+        var elementBottom = elementTop + $(element).height();
+
+        if (fullyInView === true) {
+            return ((pageTop < elementTop) && (pageBottom > elementBottom));
+        } else {
+            return ((elementBottom <= pageBottom) && (elementTop >= pageTop));
+        }
+    }
+};
+
+var Utils = new Utils();
+
+
 /* function to group by multiple properties in underscore.js */
 _.groupByMulti = function (obj, values, context) {
     if (!values.length)
@@ -11,60 +45,34 @@ _.groupByMulti = function (obj, values, context) {
 };
 
 function awardPlural(x){
-  if (x==1){
-    return 'award'
-  } else {
-    return 'awards'
-  }
+  x == 1 ? y = 'award' : y = 'awards';
+  return y;
 }
 
 function century(x){
-
-  if (x<100){
-    return '19'+x;
-  } else {
-    return '20'+(x.toString().substring(1));
-  }
+  x<100 ? y = '19'+x : y = '20'+(x.toString().substring(1));
+  return y;
 }
 
 function tipX(x){
   var winWidth = $(window).width();
   var tipWidth = $('.tip').width();
-  if (x > winWidth-150){
-    return x-40-tipWidth;
-  } else {
-    return x;
-  }
+  x > winWidth - tipWidth-30 ? y = x-45-tipWidth : y = x+10;
+  return y;
 }
 
-chart("data/awards.csv", "qualitative");
-
-var datearray = [];
 var colorrange = [];
 
-var selectBy = 'state2';
+function chart(column, filterBy, groupBy) {
 
-function chart(csvpath, color) {
+  var csvpath = "data/awards.csv";
+  var colorrange = ['#66c2a5','#fc8d62','#8da0cb','#e78ac3','#a6d854','#ffd92f','#e5c494','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3'];
 
-  if (color == "blue") {
-    colorrange = ["#045A8D", "#2B8CBE", "#74A9CF", "#A6BDDB", "#D0D1E6", "#F1EEF6"];
-  }
-  else if (color == "pink") {
-    colorrange = ["#980043", "#DD1C77", "#DF65B0", "#C994C7", "#D4B9DA", "#F1EEF6"];
-  }
-  else if (color == "orange") {
-    colorrange = ["#B30000", "#E34A33", "#FC8D59", "#FDBB84", "#FDD49E", "#FEF0D9"];
-  }
-  else if (color == "qualitative") {
-    colorrange = ['#66c2a5','#fc8d62','#8da0cb','#e78ac3','#a6d854','#ffd92f','#e5c494','#b3b3b3'];
-  }
-  strokecolor = "#3A403D";
-
-  var margin = {top: 20, right: 40, bottom: 30, left: 30};
+  var margin = {top: 20, right: 1, bottom: 30, left: 0};
   var width = $('.chart-wrapper').width() - margin.left - margin.right;
   var height = 500 - margin.top - margin.bottom;
 
-  var chartTop = $('.chart').offset().top;
+  var chartTop = $('.chart.'+groupBy+'.'+filterBy).offset().top;
 
   var tooltip = d3.select("body")
       .append("div")
@@ -88,12 +96,6 @@ function chart(csvpath, color) {
       .orient("bottom")
       .ticks(d3.time.years, 5);
 
-  var yAxis = d3.svg.axis()
-      .scale(y);
-
-  var yAxisr = d3.svg.axis()
-      .scale(y);
-
   var stack = d3.layout.stack()
       .offset("silhouette")
       .order("inside-out")
@@ -110,53 +112,119 @@ function chart(csvpath, color) {
       .y0(function(d) { return y(d.y0)-.2; })
       .y1(function(d) { return y(d.y0 + d.y)+.2; });
 
-  var svg = d3.select(".chart").append("svg")
+  var svg = d3.select(".chart."+groupBy+'.'+filterBy).append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
     .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  function parse(data){
-      // group by
-      var group = _.groupByMulti(data, ['year', selectBy])
+  // generate a legend
+  function legend(layers){
 
-      var newData = [];
-      for (var i = 1954;i<2018;i++){
-
-        var currYear = group[i];
-
-        // no data for a year
-        if (currYear == undefined) {
-          currYear = {};
-        }
-
-        var areaPivot = _(data).chain().flatten().pluck(selectBy).unique().value().reverse();
-
-        areaPivot.forEach(function(area){
-
-          var obj = {};
-          if (currYear[area] == undefined){
-            // if the year does not have any in a particular category
-            obj.key = area;
-            obj.value = 0;
-            obj.date = moment(i.toString())._d;
-          } else {
-            obj.key = currYear[area][0][selectBy];
-            obj.value = currYear[area].length;
-            obj.date = moment(currYear[area][0].year)._d;
-          }
-
-          newData.push(obj);
-        });
-
+    // generate the legend title
+    function titler(filter,group){
+      if (group == 'gender'){
+        return "Gender";
       }
 
-      data = newData;
+      if (group == 'place') {
+        if (filter == 'india'){
+          return "State";
+        } else {
+          return "Country";
+        }
+      }
 
-      return data;
+      if (group == 'state') {
+        return "State / Country"
+      }
+
+      if (group == 'field' || group == 'area') {
+        return "Discipline"
+      }
+    }
+
+    $('.chart.'+groupBy+'.'+filterBy).prepend('<div class="legend"><div class="title">'+titler(filterBy,groupBy)+'</div></div>');
+    $('.legend').hide();
+    var legend = []
+    layers.forEach(function(d,i){
+      var obj = {};
+      if (i<7){
+        obj.key = d.key;
+        obj.color = colorrange[i];
+        legend.push(obj);
+      }
+    });
+
+    // others
+    if (layers.length>7){legend.push({key: "Other",color: "#b3b3b3"});}
+
+    legend.forEach(function(d,i){
+      $('.chart.'+groupBy+'.'+filterBy+' .legend').append('<div class="item"><div class="swatch" style="background: '+d.color+'"></div>'+d.key+'</div>');
+    });
+
+    $('.legend').fadeIn();
+
+  }// end legend function
+
+  // parse the data
+  function parse(data){
+
+    var filter;
+    var searchObj = {};
+    searchObj[column] = filterBy;
+
+    if (column=="none"){
+      filter=data;
+    } else {
+      filter = _.where(data,searchObj);
+    }
+
+    var categories = _.chain(filter)
+        .countBy(groupBy)
+        .pairs()
+        .sortBy(1).reverse()
+        .pluck(0)
+        .value();
+
+    var sort = _.sortBy(filter,categories);
+
+    // group by
+    var group = _.groupByMulti(sort, ['year', groupBy])
+
+    var newData = [];
+    for (var i = 1954;i<2018;i++){
+
+      var currYear = group[i];
+
+      // no data for a year
+      if (currYear == undefined) {
+        currYear = {};
+      }
+
+      categories.forEach(function(area){
+
+        var obj = {};
+        if (currYear[area] == undefined){
+          // if the year does not have any in a particular category
+          obj.key = area;
+          obj.value = 0;
+          obj.date = moment(i.toString())._d;
+        } else {
+          obj.key = currYear[area][0][groupBy];
+          obj.value = currYear[area].length;
+          obj.date = moment(currYear[area][0].year)._d;
+        }
+
+        newData.push(obj);
+      });
+
+    }
+
+    data = newData;
+
+    return data;
   }
-
-  var format = d3.time.format("%m/%d/%y");
 
   var graph = d3.csv(csvpath, function(data) {
 
@@ -164,85 +232,24 @@ function chart(csvpath, color) {
 
     var layers = stack(nest.entries(data));
 
+    legend(layers);
+
     x.domain(d3.extent(data, function(d) { return d.date; }));
     y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
 
-    /*data.forEach(function(d){
-      var year = Number(d.date.getYear());
-      if (year == 78 || year == 79 || (year >= 93 && year <= 97)){
-        console.log('what?');
-        area.interpolate("basis");
-      } else {
-        area.interpolate("cardinal");
-      }
-    })*/
-
-    svg.selectAll(".layer")
+    var layers = svg.selectAll(".layer")
         .data(layers)
+
+    layers
       .enter().append("path")
         .attr("class", "layer")
         .attr("d", function(d) { return area(d.values); })
         .style("fill", function(d, i) { return z(i); });
 
-
-    // place the text labels
-    /*function getMyCentroid(element) {
-      var bbox = element.getBBox();
-      return [bbox.x + bbox.width / 2, bbox.y + bbox.height / 2];
-    }
-
-    d3.selectAll(".layer")[0].forEach(function(d) {
-      var centroid = getMyCentroid(d);
-      console.log(d);
-      svg.append("text")
-          .attr("x",  centroid[0])
-          .attr("y", centroid[1])
-          .text(d3.select(d).data()[0].key)
-
-    });*/
-
-    svg.selectAll(".layer-label")
-        .data(layers)
-      .enter().append("text")
-        .attr("class","layer-label")
-        .attr("x", function(d){
-          var max = Math.max.apply(0, d.values.map(function(elt) { return elt.value; }));
-          var maxObj = _.where(d.values,{value:max})[0];
-          var len = maxObj.key.length;
-          console.log(len);
-
-          return x(maxObj.date)-(len*2);
-        })
-        .attr("y", function(d){
-          var max = Math.max.apply(0, d.values.map(function(elt) { return elt.value; }));
-          var maxObj = _.where(d.values,{value:max})[0];
-          var testA = y(maxObj.y0);
-          var testB = y(maxObj.y0 + maxObj.y);
-          var testC = (testB+testA)/2;
-          var testD = y(maxObj.y);
-          var testE = maxObj.y;
-          var testF = maxObj.y0;
-          var testG = y((testE+testF))+margin.top*1.7;
-
-          return testC;
-        })
-        .text(function(d){
-          return d.key;
-        });
-
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
-
-    svg.append("g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(" + width + ", 0)")
-        .call(yAxis.orient("right"));
-
-    svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis.orient("left"));
 
     svg.selectAll(".layer")
       .attr("opacity", 1)
@@ -264,7 +271,7 @@ function chart(csvpath, color) {
           var year = (f.date.toString()).split(' ')[3];
           if (xDate == year){
               tooltip
-                .style("left", tipX(mousex+46) +"px")
+                .style("left", tipX(mousex) +"px")
                 .html( "<div class='year'>" + year + "</div><div class='key'><div style='background:" + color + "' class='swatch'>&nbsp;</div>" + f.key + "</div><div class='value'>" + f.value + " " + awardPlural((f.value)) + "</div>" )
                 .style("visibility", "visible");
           }
@@ -277,7 +284,7 @@ function chart(csvpath, color) {
         tooltip.style("visibility", "hidden");
     })
 
-    var vertical = d3.select(".chart")
+    var vertical = d3.select(".chart."+groupBy+'.'+filterBy)
           .append("div")
           .attr("class", "remove")
           .style("position", "absolute")
@@ -289,7 +296,7 @@ function chart(csvpath, color) {
           .style("left", "0px")
           .style("background", "#fcfcfc");
 
-    d3.select(".chart")
+    d3.select(".chart."+groupBy+'.'+filterBy)
         .on("mousemove", function(){
            mousex = d3.mouse(this);
            mousex = mousex[0] + 5;
@@ -327,4 +334,38 @@ function chart(csvpath, color) {
      .attr('transform', 'translate(' + width + ', 0)')
 
   });
+
 }
+
+$('.chart').each(function(i){
+
+    var column = $(this).attr("column");
+    var groupBy = $(this).attr("groupBy");
+    var filterBy = $(this).attr("filterBy");
+    $(this).addClass(groupBy).addClass(filterBy);
+
+    if (i==0){
+      chart(column,filterBy,groupBy);
+    }
+
+});
+
+$(window).scroll(function(){
+  $('.chart').each(function(i){
+
+      // test if chart already exists
+      var exist = $(this).height();
+      if (exist == 0){
+
+        var column = $(this).attr("column");
+        var groupBy = $(this).attr("groupBy");
+        var filterBy = $(this).attr("filterBy");
+
+        var isElementInView = Utils.isElementInView($(this), false);
+
+        if (isElementInView && $(this)) {
+            chart(column,filterBy,groupBy);
+        }
+      }
+  });
+})
