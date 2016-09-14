@@ -42,7 +42,7 @@ chart("data/awards.csv", "qualitative");
 var datearray = [];
 var colorrange = [];
 
-var selectBy = 'area';
+var selectBy = 'state2';
 
 function chart(csvpath, color) {
 
@@ -96,6 +96,7 @@ function chart(csvpath, color) {
 
   var stack = d3.layout.stack()
       .offset("silhouette")
+      .order("inside-out")
       .values(function(d) { return d.values; })
       .x(function(d) { return d.date; })
       .y(function(d) { return d.value; });
@@ -104,7 +105,7 @@ function chart(csvpath, color) {
       .key(function(d) { return d.key; });
 
   var area = d3.svg.area()
-      .interpolate("cardinal")
+      .interpolate("basis")
       .x(function(d) { return x(d.date); })
       .y0(function(d) { return y(d.y0)-.2; })
       .y1(function(d) { return y(d.y0 + d.y)+.2; });
@@ -166,6 +167,16 @@ function chart(csvpath, color) {
     x.domain(d3.extent(data, function(d) { return d.date; }));
     y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
 
+    /*data.forEach(function(d){
+      var year = Number(d.date.getYear());
+      if (year == 78 || year == 79 || (year >= 93 && year <= 97)){
+        console.log('what?');
+        area.interpolate("basis");
+      } else {
+        area.interpolate("cardinal");
+      }
+    })*/
+
     svg.selectAll(".layer")
         .data(layers)
       .enter().append("path")
@@ -207,7 +218,7 @@ function chart(csvpath, color) {
           var year = (f.date.toString()).split(' ')[3];
           if (xDate == year){
               tooltip
-                .style("left", tipX(mousex+50) +"px")
+                .style("left", tipX(mousex+46) +"px")
                 .html( "<div class='year'>" + year + "</div><div class='key'><div style='background:" + color + "' class='swatch'>&nbsp;</div>" + f.key + "</div><div class='value'>" + f.value + " " + awardPlural((f.value)) + "</div>" )
                 .style("visibility", "visible");
           }
@@ -241,5 +252,47 @@ function chart(csvpath, color) {
            mousex = d3.mouse(this);
            mousex = mousex[0] + 5;
            vertical.style("left", mousex + "px")});
+
+     /* Add 'curtain' rectangle to hide entire graph */
+   var curtain = svg.append('rect')
+     .attr('x', -1 * width)
+     .attr('y', -1 * height)
+     .attr('height', height)
+     .attr('width', width)
+     .attr('class', 'curtain')
+     .attr('transform', 'rotate(180)')
+     .style('fill', '#fcfcfc')
+
+   /* Optionally add a guideline */
+   var guideline = svg.append('line')
+     .attr('stroke', '#333')
+     .attr('stroke-width', 0)
+     .attr('class', 'guide')
+     .attr('x1', 1)
+     .attr('y1', 1)
+     .attr('x2', 1)
+     .attr('y2', height)
+
+   /* Create a shared transition for anything we're animating */
+   var t = svg.transition()
+     .delay(100)
+     .duration(1000)
+     .ease('linear')
+     .each('end', function() {
+       d3.select('line.guide')
+         .transition()
+         .style('opacity', 0)
+         .remove()
+     });
+
+   t.select('rect.curtain')
+     .attr('width', 0);
+   t.select('line.guide')
+     .attr('transform', 'translate(' + width + ', 0)')
+
+   d3.select("#show_guideline").on("change", function(e) {
+     guideline.attr('stroke-width', this.checked ? 1 : 0);
+     curtain.attr("opacity", this.checked ? 0.75 : 1);
+   })
   });
 }
