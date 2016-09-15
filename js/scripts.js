@@ -1,3 +1,39 @@
+// Check breakpoint
+function breakCalc(x){
+  x <= 480 ? y = 'xs' : y = 'md';
+  return y;
+}
+
+var breakpoint = breakCalc($(window).width());
+
+$(window).resize(function(){
+  var breakpoint = breakCalc($(window).width());
+})
+
+function breakHeight(bp){
+  bp == 'xs' ? y = 250 : y = 500;
+  return y;
+}
+
+//logo
+function logoSrc(){
+  breakpoint == 'xs' ? img = 'img/ht-logo-sq.png' : img = 'img/navlogo.png';
+  $('.navbar-brand img').attr('src',img)
+}
+logoSrc();
+$(window).resize(function(){
+  logoSrc();
+})
+
+//sharing
+var url = window.location.href;
+var twitterShare = 'https://twitter.com/home?status=A visual history of India\'s top civilian awards ' + url + ' %23PadmaAwards @htTweets';
+$('.twitter-share').attr('href', twitterShare);
+var facebookShare = 'https://www.facebook.com/sharer/sharer.php?u=' + url;
+$('.facebook-share').attr('href', facebookShare);
+
+
+
 /* functions to check if a chart is scrolled into view */
 function isScrolledIntoView(elem)
 {
@@ -57,7 +93,11 @@ function century(x){
 function tipX(x){
   var winWidth = $(window).width();
   var tipWidth = $('.tip').width();
-  x > winWidth - tipWidth-30 ? y = x-45-tipWidth : y = x+10;
+  if (breakpoint == 'xs'){
+    x > winWidth - tipWidth - 20 ? y = x-tipWidth : y = x;
+  } else {
+    x > winWidth - tipWidth - 30 ? y = x-45-tipWidth : y = x+10;
+  }
   return y;
 }
 
@@ -68,9 +108,14 @@ function chart(column, filterBy, groupBy) {
   var csvpath = "data/awards.csv";
   var colorrange = ['#66c2a5','#fc8d62','#8da0cb','#e78ac3','#a6d854','#ffd92f','#e5c494','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3','#b3b3b3'];
 
+  function margRtCalc(bp){
+    bp == 'xs' ? y = 1 : y = -15;
+    return y;
+  }
+
   var margin = {top: 20, right: 1, bottom: 30, left: 0};
   var width = $('.chart-wrapper').width() - margin.left - margin.right;
-  var height = 500 - margin.top - margin.bottom;
+  var height = breakHeight(breakpoint) - margin.top - margin.bottom;
 
   var chartTop = $('.chart.'+groupBy+'.'+filterBy).offset().top;
 
@@ -80,7 +125,7 @@ function chart(column, filterBy, groupBy) {
       .style("position", "absolute")
       .style("z-index", "20")
       .style("visibility", "hidden")
-      .style("top", 30+chartTop+"px");
+      .style("top", 40+chartTop+"px");
 
   var x = d3.time.scale()
       .range([0, width]);
@@ -249,6 +294,17 @@ function chart(column, filterBy, groupBy) {
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
 
+    // abbreviate axis tick text on small screens
+    if (breakpoint == 'xs') {
+
+      $('.x.axis text').each(function(){
+        var curTxt = $(this).text();
+        var newTxt = "'"+curTxt.substr(2);
+        $(this).text(newTxt);
+      });
+
+    }
+
     svg.selectAll(".layer")
       .attr("opacity", 1)
       .on("mouseover", function(d, i) {
@@ -304,8 +360,8 @@ function chart(column, filterBy, groupBy) {
            mousex = mousex[0] + 5;
            vertical.style("left", mousex + "px")});
 
-     /* Add 'curtain' rectangle to hide entire graph */
-   var curtain = svg.append('rect')
+    /* Add 'curtain' rectangle to hide entire graph */
+    var curtain = svg.append('rect')
      .attr('x', -1 * width)
      .attr('y', -1 * height)
      .attr('height', height)
@@ -314,10 +370,10 @@ function chart(column, filterBy, groupBy) {
      .attr('transform', 'rotate(180)')
      .style('fill', '#fcfcfc')
 
-   /* Create a shared transition for anything we're animating */
-   var t = svg.transition()
+    /* Create a shared transition for anything we're animating */
+    var t = svg.transition()
      .delay(100)
-     .duration(1000)
+     .duration(1500)
      .ease('exp')
      .each('end', function() {
        d3.select('line.guide')
@@ -326,10 +382,10 @@ function chart(column, filterBy, groupBy) {
          .remove()
      });
 
-   t.select('rect.curtain')
-     .attr('width', 0);
-   t.select('line.guide')
-     .attr('transform', 'translate(' + width + ', 0)')
+    t.select('rect.curtain')
+      .attr('width', 0);
+    t.select('line.guide')
+      .attr('transform', 'translate(' + width + ', 0)');
 
   });
 
